@@ -82,6 +82,8 @@ let sketch;
 let vertex_coordinate; 
 let featureId = 0;
 
+let keyboard;
+
 function addDrawInteraction() {
     draw = new Draw({
         source: source,
@@ -110,6 +112,10 @@ function addDrawInteraction() {
     draw.on('drawstart', function (evt) {
         console.log('event: ', evt);
         sketch = evt.feature;
+        keyboard = new Keyboard({
+            source: draw
+        });
+        map.addInteraction(keyboard);
     });
     draw.on('drawend', function (e) {
         // get coordinates
@@ -130,6 +136,8 @@ function addDrawInteraction() {
         // unset sketch
         sketch = null;
         vertex_coordinate.length = 0;
+
+        map.removeInteraction(keyboard);
     });
 
     snap = new Snap({ source: source });
@@ -142,9 +150,6 @@ function removeDrawInteraction() {
     }
 }
 
-//addInteractions();
-
-let keyboard;
 
 function addKeyboardInteraction() {    
     keyboard = new Keyboard({
