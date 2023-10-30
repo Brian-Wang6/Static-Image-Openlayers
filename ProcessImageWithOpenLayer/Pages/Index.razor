@@ -1,13 +1,15 @@
 ﻿@page "/"
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <link rel="stylesheet" href="./css/openlayer/ol.css" />
 <style>
     .map {
         width: 100%;
-        height: 720px;
+        height: 1040px;
         border-style: solid;
         border-width: 1px;
+        margin-top: 5px;
     }
 </style>
 
@@ -16,13 +18,19 @@
         <DxSpinEdit @bind-Value="@red" Id="R" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Green:">
-        <DxSpinEdit @bind-Value="@green" Id="G"/>
+        <DxSpinEdit @bind-Value="@green" Id="G" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Blue:">
         <DxSpinEdit @bind-Value="@blue" Id="B" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Alpha:">
-        <DxTextBox @bind-Text="@alpha" Id="A"/>
+        <DxSpinEdit @bind-Value="@alpha" Id="A" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="zIndex:">
+        <DxSpinEdit @bind-Value="@zIndex" Id="zIndex" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="">
+        <DxButton Text="Set" Id="zIndexBtn" />
     </DxFormLayoutItem>
 </DxFormLayout>
 <div id="map" class="map" tabindex="0"></div>
@@ -30,34 +38,44 @@
 <button id="selectbtn">Select</button>
 <button id="drawbtn">Draw</button>
 
-
 @code {
     private IJSObjectReference? module;
-    private int red;
-    private int green;
-    private string? alpha;
-    private int blue;
+    private int red = 125;
+    private int green = 125;
+    private double alpha = 0.5;
+    private int blue = 125;
+    private int zIndex;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.bundle.js");
+            if (module == null)
+            {
+                module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.bundle.js");
+            }
         }
     }
 
-    protected async Task AddSelectInteraction()
-    {
-        Console.WriteLine("click select feature button");
-        if(module != null)
-            await module.InvokeVoidAsync("onSelectFeature");
-    }
+    //protected async Task AddSelectInteraction()
+    //{
+    //    Console.WriteLine("click select feature button");
+    //    if (module != null)
+    //        await module.InvokeVoidAsync("onSelectFeature");
+    //}
 
-    protected async Task AddDrawInteraction()
+    //protected async Task AddDrawInteraction()
+    //{
+    //    Console.WriteLine("click draw feature button");
+    //    if (module != null)
+    //        await module.InvokeVoidAsync("onDrawFeature");
+    //}
+
+    public async ValueTask DisposeAsync()
     {
-        Console.WriteLine("click draw feature button");
-        if(module != null)
-            await module.InvokeVoidAsync("onDrawFeature");
+        if (module != null)
+            await module.DisposeAsync();
     }
 }
+

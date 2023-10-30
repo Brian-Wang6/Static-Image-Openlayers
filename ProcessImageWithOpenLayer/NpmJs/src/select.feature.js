@@ -2,7 +2,7 @@
 import { Fill, Stroke, Style } from 'ol/style.js';
 
 
-let select;
+//let select;
 
 const selectedStyle = new Style({
 	fill: new Fill({
@@ -12,33 +12,61 @@ const selectedStyle = new Style({
 		color: 'rgba(255,255,255,0.7)',
 		width: 2,
 	}),
+	zIndex: 0
 });
 
 function selectStyle(feature) {
 	
 	const color = feature.get('color') || '#eeeeee';
 	selectedStyle.getFill().setColor(color);
+	const zIndex = feature.get('zIndex') || 0;
+	selectedStyle.setZIndex(zIndex);
 	return selectedStyle;
 }
 
-export const selectSingleClick = new Select({ style: selectStyle });
+export let selectSingleClick;
+//export const selectSingleClick = new Select({ style: null });
+
 //export const selectSingleClick = new Select();
 
 let selectFeature;
 
 export function addSelectInteraction(map) {
-	select = selectSingleClick;
-	if (select !== null) {
-		map.addInteraction(select);
-		select.on('select', function (e) {
+	//selectSingleClick = new Select({ style: selectStyle });
+	selectSingleClick = new Select({ style: null });
+	if (selectSingleClick !== null) {
+		map.addInteraction(selectSingleClick);
+		selectSingleClick.on('select', function (e) {
 			selectFeature = e.selected[0];
+			if (selectFeature !== undefined) {
+				
+				selectFeature.getStyle().setStroke(
+					new Stroke({
+						color: 'rgba(255,255,255,0.7)',
+						width: 2,
+					})
+				);
+				selectFeature.changed();
+			}
+			
+			var deselected = e.deselected[0];
+			if (deselected !== undefined) {
+				deselected.getStyle().setStroke();
+				deselected.changed();
+			}
+			
 		});
 	}
-	//return selectFeature;
+	
 }
 
 export function removeSelectInteraction(map) {
-	if (select !== null) {
-		map.removeInteraction(select);
+	
+	if (selectSingleClick !== undefined) {
+		selectSingleClick.getFeatures().forEach((item) => {
+			item.getStyle().setStroke();
+			item.changed();
+		});
+		map.removeInteraction(selectSingleClick);
 	}
 }

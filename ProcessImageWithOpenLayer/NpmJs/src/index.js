@@ -10,25 +10,27 @@ import { Vector as VectorLayer } from 'ol/layer.js';
 import MousePosition from 'ol/control/MousePosition.js';
 import { defaults as defaultControls } from 'ol/control.js';
 import { createStringXY } from 'ol/coordinate.js';
+//import { originalFeatureStyles } from 'ol/interaction/Select.js';
+import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
 import { addSelectInteraction, removeSelectInteraction, selectSingleClick } from './select.feature.js';
 import { default as Keyboard } from './Keyboard.js';
-import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
+import { setfeaturezindex } from './feature.zindex.js';
 
 
-//const extent = [0, 0, 1024, 968];
-const extent = [0, 0, 1040, 720];
+const extent = [0, 0, 2960, 1040];
+//const extent = [0, 0, 1040, 720];
 
 const projection = new Projection({
-    code: 'xkcd-image',
-    
+    //code: 'xkcd-image',
+    code: 'floor-image',
     units: 'pixels',
     extent: extent,
 });
 
 const imageSource = new Static({
-    attributions: '© <a href="https://xkcd.com/license.html">xkcd</a>',
-    
-    url: 'https://imgs.xkcd.com/comics/online_communities.png',
+    attributions: '© <a href="https://cadi.com.sg/">cadi</a>',
+    url: './images/1003.jpg',
+    //url: 'https://imgs.xkcd.com/comics/online_communities.png',
     projection: projection,
     imageExtent: extent,
 });
@@ -43,7 +45,7 @@ const vector = new VectorLayer({
         'circle-radius': 1,
         'circle-fill-color': '#0000ff',
     },
-    extent: extent,
+    //extent: extent,
 });
 
 const mousePositionControl = new MousePosition({
@@ -78,6 +80,7 @@ let draw, snap;
 let sketch;
 // Vertex coordinates
 let vertex_coordinate; 
+let featureId = 0;
 
 function addDrawInteraction() {
     draw = new Draw({
@@ -116,8 +119,10 @@ function addDrawInteraction() {
                 color: color()
             })
         }));
+        sketch.setId(featureId++);
         sketch.set('color', color());
-        
+        sketch.set('zIndex', Number(document.querySelector('#zIndex input').value));
+
         el('coordinates').innerText = vertex_coordinate;
         console.log(vertex_coordinate[0]);
         console.log(vertex_coordinate[0][0]);
@@ -125,7 +130,7 @@ function addDrawInteraction() {
         // unset sketch
         sketch = null;
         vertex_coordinate.length = 0;
-    })
+    });
 
     snap = new Snap({ source: source });
     map.addInteraction(snap);
@@ -141,11 +146,7 @@ function removeDrawInteraction() {
 
 let keyboard;
 
-// selct interaction
-function onSelectFeature() {
-    console.log('going to select features');
-    removeDrawInteraction();
-    addSelectInteraction(map);
+function addKeyboardInteraction() {    
     keyboard = new Keyboard({
         source: source,
         target: selectSingleClick
@@ -153,9 +154,27 @@ function onSelectFeature() {
     map.addInteraction(keyboard);
 }
 
+function removeKeyboardInteraction() {
+    if (keyboard != null) {
+        map.removeInteraction(keyboard);
+    }
+}
+
+// selct interaction
+function onSelectFeature() {
+    console.log('going to select features');
+    removeDrawInteraction();
+    removeSelectInteraction(map);
+    addSelectInteraction(map);
+    removeKeyboardInteraction();
+    addKeyboardInteraction();
+}
+
 function onDrawFeature() {
     console.log('going to draw features');
     removeSelectInteraction(map);
+    removeKeyboardInteraction();
+    removeDrawInteraction();
     addDrawInteraction();
 }
 
@@ -172,10 +191,16 @@ function color() {
     return rgba;
 }
 
-document.getElementById('selectbtn').onclick = function () {
+document.getElementById('selectbtn').onclick = function () {    
     onSelectFeature();
 }
 
 document.getElementById('drawbtn').onclick = function () {
     onDrawFeature();
 }
+
+document.getElementById('zIndexBtn').onclick = function () {
+    var zIndex = Number(document.querySelector('#zIndex input').value);
+    setfeaturezindex(selectSingleClick.getFeatures().item(0), zIndex);
+}
+
