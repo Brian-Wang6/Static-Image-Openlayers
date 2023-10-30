@@ -1,6 +1,7 @@
 ﻿import { Pointer, Draw, Select } from 'ol/interaction.js';
 import { noModifierKeys, targetNotEditable } from 'ol/events/condition.js';
 import Static from 'ol/source/ImageStatic.js';
+import { Vector as VectorSource } from 'ol/source.js';
 
 
 class Keyboard extends Pointer {
@@ -27,12 +28,11 @@ class Keyboard extends Pointer {
             const keyEvent = mapBrowserEvent.originalEvent;
             const key = keyEvent.key;
             if (this.condition_(mapBrowserEvent) && (key == 'Delete')) {
-                const feature = this.target_.getFeatures().item(0);
-
-                if (key == 'Delete') {
+                if (this.target_ !== null && this.target_ instanceof Select && this.source_ instanceof VectorSource) {
+                    const feature = this.target_.getFeatures().item(0);
                     this.source_.removeFeature(feature);
                 }
-
+                
                 keyEvent.preventDefault();
                 stopEvent = true;
             }
