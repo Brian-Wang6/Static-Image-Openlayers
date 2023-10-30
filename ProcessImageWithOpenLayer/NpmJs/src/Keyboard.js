@@ -1,4 +1,4 @@
-﻿import { Pointer } from 'ol/interaction.js';
+﻿import { Pointer, Draw, Select } from 'ol/interaction.js';
 import { noModifierKeys, targetNotEditable } from 'ol/events/condition.js';
 import Static from 'ol/source/ImageStatic.js';
 
@@ -33,6 +33,14 @@ class Keyboard extends Pointer {
                     this.source_.removeFeature(feature);
                 }
 
+                keyEvent.preventDefault();
+                stopEvent = true;
+            }
+            if (this.condition_(mapBrowserEvent) && (key == 'Escape')) {
+                if (this.source_ instanceof Draw) {
+                    this.source_.removeLastPoint();
+                }
+                
                 keyEvent.preventDefault();
                 stopEvent = true;
             }
