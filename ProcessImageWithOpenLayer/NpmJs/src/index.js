@@ -4,7 +4,7 @@ import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
 import View from 'ol/View.js';
 import { getCenter } from 'ol/extent.js';
-import { Draw, Modify, Snap } from 'ol/interaction.js';
+import { Draw, Modify, Snap, Translate } from 'ol/interaction.js';
 import { Vector as VectorSource } from 'ol/source.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import MousePosition from 'ol/control/MousePosition.js';
@@ -12,7 +12,7 @@ import { defaults as defaultControls } from 'ol/control.js';
 import { createStringXY } from 'ol/coordinate.js';
 //import { originalFeatureStyles } from 'ol/interaction/Select.js';
 import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
-import { addSelectInteraction, removeSelectInteraction, selectSingleClick } from './select.feature.js';
+import { addSelectInteraction, removeSelectInteraction } from './select.feature.js';
 import { default as Keyboard } from './Keyboard.js';
 import { setfeaturezindex } from './feature.zindex.js';
 
@@ -82,7 +82,9 @@ let sketch;
 let vertex_coordinate; 
 let featureId = 0;
 
-let keyboard;
+let keyboard;   //keyboard interaction to handle keyboard event
+let select;     //select interaction to handle select event
+let translate;  //translate interaction to handle move feature event
 
 function addDrawInteraction() {
     draw = new Draw({
@@ -154,7 +156,7 @@ function removeDrawInteraction() {
 function addKeyboardInteraction() {    
     keyboard = new Keyboard({
         source: source,
-        target: selectSingleClick
+        target: select
     });
     map.addInteraction(keyboard);
 }
@@ -165,19 +167,36 @@ function removeKeyboardInteraction() {
     }
 }
 
+function addTranslateInteraction(map, select) {
+    var translate = new Translate({
+        features: select.getFeatures(),
+    });
+    map.addInteraction(translate);
+    return translate;
+}
+
+function removeTranslateInteraction(map, translate) {
+    if (translate !== null) {
+        map.removeInteraction(translate);
+    }
+}
+
 // selct interaction
 function onSelectFeature() {
     console.log('going to select features');
     removeDrawInteraction();
-    removeSelectInteraction(map);
-    addSelectInteraction(map);
+    removeTranslateInteraction(map, translate);
+    removeSelectInteraction(map, select);
+    select = addSelectInteraction(map);
+    translate = addTranslateInteraction(map, select);
     removeKeyboardInteraction();
     addKeyboardInteraction();
 }
 
 function onDrawFeature() {
     console.log('going to draw features');
-    removeSelectInteraction(map);
+    removeTranslateInteraction(map, translate);
+    removeSelectInteraction(map, select);
     removeKeyboardInteraction();
     removeDrawInteraction();
     addDrawInteraction();

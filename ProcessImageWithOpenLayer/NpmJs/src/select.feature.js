@@ -24,7 +24,7 @@ function selectStyle(feature) {
 	return selectedStyle;
 }
 
-export let selectSingleClick;
+//export let selectSingleClick;
 //export const selectSingleClick = new Select({ style: null });
 
 //export const selectSingleClick = new Select();
@@ -33,13 +33,13 @@ let selectFeature;
 
 export function addSelectInteraction(map) {
 	//selectSingleClick = new Select({ style: selectStyle });
-	selectSingleClick = new Select({ style: null });
+	const selectSingleClick = new Select({ style: null });
 	if (selectSingleClick !== null) {
 		map.addInteraction(selectSingleClick);
 		selectSingleClick.on('select', function (e) {
 			selectFeature = e.selected[0];
 			if (selectFeature !== undefined) {
-				
+				console.log('selected feature: ', selectFeature);
 				selectFeature.getStyle().setStroke(
 					new Stroke({
 						color: 'rgba(255,255,255,0.7)',
@@ -57,10 +57,10 @@ export function addSelectInteraction(map) {
 			
 		});
 	}
-	
+	return selectSingleClick;
 }
 
-export function removeSelectInteraction(map) {
+export function removeSelectInteraction(map, selectSingleClick) {
 	
 	if (selectSingleClick !== undefined) {
 		selectSingleClick.getFeatures().forEach((item) => {
