@@ -32,6 +32,12 @@
     <DxFormLayoutItem Caption="">
         <DxButton Text="Set" Id="zIndexBtn" />
     </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Location:">
+        <DxTextBox @bind-Text="@location" Id="location" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="">
+        <DxButton Text="Set" Id="locationBtn" />
+    </DxFormLayoutItem>
 </DxFormLayout>
 <div id="map" class="map" tabindex="0"></div>
 <div id="coordinates"></div>
@@ -45,6 +51,7 @@
     private double alpha = 0.5;
     private int blue = 125;
     private int zIndex;
+    private string location = string.Empty;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

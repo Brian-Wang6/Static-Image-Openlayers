@@ -14,11 +14,12 @@ import { createStringXY } from 'ol/coordinate.js';
 import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
 import { addSelectInteraction, removeSelectInteraction } from './select.feature.js';
 import { default as Keyboard } from './Keyboard.js';
-import { setfeaturezindex } from './feature.zindex.js';
+import { default as FeatureStyle } from './FeatureStyle.js';
 
 
 const extent = [0, 0, 2960, 1040];
 //const extent = [0, 0, 1040, 720];
+const featureStyle = new FeatureStyle();
 
 const projection = new Projection({
     //code: 'xkcd-image',
@@ -225,6 +226,12 @@ document.getElementById('drawbtn').onclick = function () {
 
 document.getElementById('zIndexBtn').onclick = function () {
     var zIndex = Number(document.querySelector('#zIndex input').value);
-    setfeaturezindex(selectSingleClick.getFeatures().item(0), zIndex);
+    featureStyle.setfeaturezindex(select.getFeatures().item(0), zIndex);
 }
 
+document.getElementById('locationBtn').onclick = function () {
+    var location = document.querySelector('#location input').value;
+    featureStyle.setFeatureText(select.getFeatures().item(0), location);
+}
+
+onSelectFeature();
