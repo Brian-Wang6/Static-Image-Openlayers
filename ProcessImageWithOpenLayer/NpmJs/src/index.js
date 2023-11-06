@@ -12,9 +12,10 @@ import { defaults as defaultControls } from 'ol/control.js';
 import { createStringXY } from 'ol/coordinate.js';
 //import { originalFeatureStyles } from 'ol/interaction/Select.js';
 import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
-import { addSelectInteraction, removeSelectInteraction } from './select.feature.js';
-import { default as Keyboard } from './Keyboard.js';
+import { addSelectInteraction, removeSelectInteraction } from './interactions/SelectInteraction.js';
+import { default as Keyboard } from './interactions/Keyboard.js';
 import { default as FeatureStyle } from './FeatureStyle.js';
+import { SelectAndDraw } from './controls/SelectAndDraw.js';
 
 
 const extent = [0, 0, 2960, 1040];
@@ -55,8 +56,12 @@ const mousePositionControl = new MousePosition({
 
 });
 
+const selectAndDraw = new SelectAndDraw({
+    source: source
+});
+
 const map = new Map({
-    controls: defaultControls().extend([mousePositionControl]),
+    controls: defaultControls().extend([mousePositionControl, selectAndDraw]),
     layers: [
         new ImageLayer({
             source: imageSource,
@@ -77,6 +82,9 @@ map.addInteraction(modify);
 
 // Declare interaction
 let draw, snap;
+snap = new Snap({ source: source });
+map.addInteraction(snap);
+
 // Currently drawn feature
 let sketch;
 // Vertex coordinates
@@ -142,9 +150,7 @@ function addDrawInteraction() {
 
         map.removeInteraction(keyboard);
     });
-
-    snap = new Snap({ source: source });
-    map.addInteraction(snap);
+    
 }
 
 function removeDrawInteraction() {
@@ -188,7 +194,7 @@ function onSelectFeature() {
     removeDrawInteraction();
     removeTranslateInteraction(map, translate);
     removeSelectInteraction(map, select);
-    select = addSelectInteraction(map);
+    select = addSelectInteraction(map, source);
     translate = addTranslateInteraction(map, select);
     removeKeyboardInteraction();
     addKeyboardInteraction();
@@ -213,8 +219,10 @@ function color() {
     rgba[1] = Number(document.querySelector('#G input').value);
     rgba[2] = Number(document.querySelector('#B input').value);
     rgba[3] = Number(document.querySelector('#A input').value);
+    console.log('rgba: ', rgba);
     return rgba;
 }
+
 
 document.getElementById('selectbtn').onclick = function () {    
     onSelectFeature();
@@ -226,12 +234,12 @@ document.getElementById('drawbtn').onclick = function () {
 
 document.getElementById('zIndexBtn').onclick = function () {
     var zIndex = Number(document.querySelector('#zIndex input').value);
-    featureStyle.setfeaturezindex(select.getFeatures().item(0), zIndex);
+    featureStyle.setfeaturezindex(selectAndDraw.getSelectInteraction().getFeatures().item(0), zIndex);
 }
 
 document.getElementById('locationBtn').onclick = function () {
     var location = document.querySelector('#location input').value;
-    featureStyle.setFeatureText(select.getFeatures().item(0), location);
+    featureStyle.setFeatureText(selectAndDraw.getSelectInteraction().getFeatures().item(0), location);
 }
 
-onSelectFeature();
+//onSelectFeature();

@@ -1,5 +1,7 @@
 ﻿import Select from 'ol/interaction/Select.js';
+import { Draw, Modify, Snap, Translate } from 'ol/interaction.js';
 import { Fill, Stroke, Style } from 'ol/style.js';
+import { default as Keyboard } from './Keyboard.js';
 
 
 //let select;
@@ -30,12 +32,16 @@ function selectStyle(feature) {
 //export const selectSingleClick = new Select();
 
 let selectFeature;
+let keyboard;
+let translate;
 
-export function addSelectInteraction(map) {
+export function addSelectInteraction(map, source) {
 	//selectSingleClick = new Select({ style: selectStyle });
 	const selectSingleClick = new Select({ style: null });
 	if (selectSingleClick !== null) {
 		map.addInteraction(selectSingleClick);
+		addKeyboardInteraction(map, source, selectSingleClick);
+		addTranslateInteraction(map, selectSingleClick);
 		selectSingleClick.on('select', function (e) {
 			selectFeature = e.selected[0];
 			if (selectFeature !== undefined) {
@@ -69,4 +75,35 @@ export function removeSelectInteraction(map, selectSingleClick) {
 		});
 		map.removeInteraction(selectSingleClick);
 	}
+	removeKeyboardInteraction(map);
+	removeTranslateInteraction(map);
+}
+
+function addKeyboardInteraction(map, source, target) {
+	keyboard = new Keyboard({
+		source: source,
+		target: target
+	});
+	map.addInteraction(keyboard);
+	return keyboard;
+}
+
+function removeKeyboardInteraction(map) {
+    if (keyboard !== null) {
+		map.removeInteraction(keyboard);
+    }
+}
+
+function addTranslateInteraction(map, select) {
+	translate = new Translate({
+		features: select.getFeatures(),
+	});
+	map.addInteraction(translate);
+	return translate;
+}
+
+function removeTranslateInteraction(map) {
+    if (translate !== null) {
+		map.removeInteraction(translate);
+    }
 }

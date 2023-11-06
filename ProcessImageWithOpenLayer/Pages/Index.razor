@@ -3,6 +3,8 @@
 @implements IAsyncDisposable
 
 <link rel="stylesheet" href="./css/openlayer/ol.css" />
+<link rel="stylesheet" href="./css/fontawesome/css/fontawesome.css" />
+<link rel="stylesheet" href="./css/fontawesome/css/solid.css" />
 <style>
     .map {
         width: 100%;
@@ -10,6 +12,19 @@
         border-style: solid;
         border-width: 1px;
         margin-top: 5px;
+    }
+
+    .select-draw {
+        top: 65px;
+        left: .5em;
+    }
+
+    .select-draw .select-draw-select {
+        border-radius: 2px 2px 0 0;
+    }
+
+    .select-draw .select-draw-draw {
+        border-radius: 0 0 2px 2px;
     }
 </style>
 
