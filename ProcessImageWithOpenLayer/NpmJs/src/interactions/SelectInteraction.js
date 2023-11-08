@@ -46,21 +46,24 @@ export function addSelectInteraction(map, source) {
 			selectFeature = e.selected[0];
 			if (selectFeature !== undefined) {
 				console.log('selected feature: ', selectFeature);
-				selectFeature.getStyle().setStroke(
-					new Stroke({
-						color: 'rgba(255,255,255,0.7)',
-						width: 2,
-					})
-				);
-				selectFeature.changed();
+                if (selectFeature.getStyle() !== null) {
+					selectFeature.getStyle()[0].setStroke(
+						new Stroke({
+							color: 'rgba(255,255,255,0.7)',
+							width: 2,
+						})
+					);
+					selectFeature.changed();
+                }				
 			}
 			
 			var deselected = e.deselected[0];
 			if (deselected !== undefined) {
-				deselected.getStyle().setStroke();
-				deselected.changed();
-			}
-			
+                if (deselected.getStyle() !== null) {
+					deselected.getStyle()[0].setStroke();
+					deselected.changed();
+                }				
+			}			
 		});
 	}
 	return selectSingleClick;
@@ -70,8 +73,10 @@ export function removeSelectInteraction(map, selectSingleClick) {
 	
 	if (selectSingleClick !== undefined) {
 		selectSingleClick.getFeatures().forEach((item) => {
-			item.getStyle().setStroke();
-			item.changed();
+            if (item.getStyle() !== null) {
+				item.getStyle()[0].setStroke();
+				item.changed();
+            }			
 		});
 		map.removeInteraction(selectSingleClick);
 	}

@@ -81,9 +81,7 @@ const modify = new Modify({ source: source });
 map.addInteraction(modify);
 
 // Declare interaction
-let draw, snap;
-snap = new Snap({ source: source });
-map.addInteraction(snap);
+let draw;
 
 // Currently drawn feature
 let sketch;
@@ -234,12 +232,16 @@ document.getElementById('drawbtn').onclick = function () {
 
 document.getElementById('zIndexBtn').onclick = function () {
     var zIndex = Number(document.querySelector('#zIndex input').value);
-    featureStyle.setfeaturezindex(selectAndDraw.getSelectInteraction().getFeatures().item(0), zIndex);
+    if (selectAndDraw.getSelectInteraction() !== undefined) {
+        featureStyle.setfeaturezindex(selectAndDraw.getSelectInteraction().getFeatures().item(0), zIndex);
+    }    
 }
 
 document.getElementById('locationBtn').onclick = function () {
     var location = document.querySelector('#location input').value;
-    featureStyle.setFeatureText(selectAndDraw.getSelectInteraction().getFeatures().item(0), location);
+    if (selectAndDraw.getSelectInteraction() !== undefined) {
+        featureStyle.setFeatureText(selectAndDraw.getSelectInteraction().getFeatures().item(0), location);
+    }    
 }
 
 //onSelectFeature();

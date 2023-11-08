@@ -4,8 +4,8 @@ class FeatureStyle {
     setfeaturezindex(feature, zindex) {
         if (feature === undefined)
             return;
-        var style = feature.getStyle();
-        if (style !== undefined) {
+        var style = feature.getStyle()[0];
+        if (style !== null) {
             style.setZIndex(zindex);
             feature.changed();
         }
@@ -14,10 +14,11 @@ class FeatureStyle {
     setFeatureText(feature, text) {
         if (feature === undefined)
             return;
-        var style = feature.getStyle();
-        if (style !== undefined) {
+        var style = feature.getStyle()[0];
+        if (style !== null) {
             var label = new Text({
                 font: '26px Calibri,sans-serif',
+                overflow: true,
                 fill: new Fill({
                     color: '#000',
                 }),

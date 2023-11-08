@@ -14,8 +14,7 @@ class Keyboard extends Pointer {
 
         this.target_ = options.target !== undefined ? options.target : null;
 
-        this.defaultCondition_ = function (mapBrowserEvent) {
-            console.log('options: ', options);
+        this.defaultCondition_ = function (mapBrowserEvent) {            
             return noModifierKeys(mapBrowserEvent) && targetNotEditable(mapBrowserEvent);
         }
 

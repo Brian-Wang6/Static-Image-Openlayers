@@ -1,9 +1,10 @@
 ﻿import { Draw, Modify, Snap, Translate } from 'ol/interaction.js';
-import { Style, Fill, RegularShape, Stroke } from 'ol/style.js';
+import { Style, Fill, RegularShape, Stroke, Circle } from 'ol/style.js';
 import { default as Keyboard } from './Keyboard.js';
+import MultiPoint from 'ol/geom/MultiPoint.js';
 
 
-let keyboard;
+let keyboard, snap;
 
 // Currently drawn feature
 let sketch;
@@ -33,6 +34,9 @@ export function addDrawInteraction(map, source) {
     });
     map.addInteraction(draw);
 
+    snap = new Snap({ source: source });
+    map.addInteraction(snap);
+
     // Draw event
     draw.on('drawstart', function (evt) {
         console.log('event: ', evt);
@@ -45,11 +49,28 @@ export function addDrawInteraction(map, source) {
     draw.on('drawend', function (e) {
         // get coordinates
         const vertex_coordinate = sketch.getGeometry().getCoordinates();
-        sketch.setStyle(new Style({
-            fill: new Fill({
-                color: color()
+        sketch.setStyle([
+            new Style({
+                fill: new Fill({
+                    color: color()
+                })
+            }),
+            new Style({
+                image: new Circle({
+                    stroke: new Stroke({
+                        color: 'blue',
+                        width: 1
+                    }),
+                    radius: 2,
+                    fill: null
+                }),
+                geometry: function (feature) {
+                    // return the coordinates of the first ring of the polygon
+                    const coordinates = feature.getGeometry().getCoordinates()[0];
+                    return new MultiPoint(coordinates);
+                },
             })
-        }));
+        ]);
 
         sketch.set('color', color());
         sketch.set('zIndex', Number(document.querySelector('#zIndex input').value));
