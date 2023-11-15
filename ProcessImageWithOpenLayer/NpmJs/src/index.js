@@ -222,13 +222,13 @@ function color() {
 }
 
 
-document.getElementById('selectbtn').onclick = function () {    
-    onSelectFeature();
-}
+//document.getElementById('selectbtn').onclick = function () {    
+//    onSelectFeature();
+//}
 
-document.getElementById('drawbtn').onclick = function () {
-    onDrawFeature();
-}
+//document.getElementById('drawbtn').onclick = function () {
+//    onDrawFeature();
+//}
 
 document.getElementById('zIndexBtn').onclick = function () {
     var zIndex = Number(document.querySelector('#zIndex input').value);
