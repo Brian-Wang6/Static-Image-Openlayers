@@ -40,13 +40,13 @@ const imageSource = new Static({
 const source = new VectorSource();
 const vector = new VectorLayer({
     source: source,
-    style: {
-        'fill-color': 'rgba(255, 99, 71, 0.2)',
-        'stroke-color': '#0000ff',
-        'stroke-width': 2,
-        'circle-radius': 1,
-        'circle-fill-color': '#0000ff',
-    },
+    //style: {
+    //    'fill-color': 'rgba(255, 99, 71, 0.2)',
+    //    'stroke-color': '#0000ff',
+    //    'stroke-width': 2,
+    //    'circle-radius': 1,
+    //    'circle-fill-color': '#0000ff',
+    //},
     //extent: extent,
 });
 

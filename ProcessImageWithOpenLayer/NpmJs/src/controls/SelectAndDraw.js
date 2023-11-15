@@ -2,6 +2,7 @@
 import Select from 'ol/interaction/Select.js';
 import { addSelectInteraction, removeSelectInteraction } from '../interactions/SelectInteraction.js';
 import { addDrawInteraction, removeDrawInteraction } from '../interactions/DrawInteraction.js';
+import { default as Cut } from '../interactions/Cut.js';
 import { Draw, Modify, Snap, Translate } from 'ol/interaction.js';
 
 
@@ -23,10 +24,17 @@ export class SelectAndDraw extends Control {
         draw.setAttribute('type', 'button');
         draw.title = 'Draw polygon';
 
+        const cut = document.createElement('button');
+        cut.innerHTML = '<i class="fa-solid fa-scissors"></i>';
+        cut.className = 'select-draw-cut';
+        cut.setAttribute('type', 'button');
+        cut.title = 'Cut polygon';
+
         const element = document.createElement('div');
         element.className = 'select-draw ol-unselectable ol-control';
         element.appendChild(select);
         element.appendChild(draw);
+        element.appendChild(cut);
 
         super({
             element: element,
@@ -35,6 +43,7 @@ export class SelectAndDraw extends Control {
 
         select.addEventListener('click', this.handleSelectBtnClick.bind(this), false);
         draw.addEventListener('click', this.handleDrawBtnClick.bind(this), false);
+        cut.addEventListener('click', this.handleCutBtnClick.bind(this), false);
 
         this.selectInteraction;
         this.drawInteraction;
@@ -76,6 +85,26 @@ export class SelectAndDraw extends Control {
         }
 
         this.drawInteraction = addDrawInteraction(this.getMap(), this.source_);
+    }
+
+    handleCutBtnClick() {
+        const interactions = this.getMap().getInteractions().getArray();
+        for (var i = interactions.length - 1; i >= 0; --i) {
+            const interaction = interactions[i];
+            if (interaction instanceof Draw) {
+                removeDrawInteraction(this.getMap(), interaction);
+            }
+            else if (interaction instanceof Select) {
+                removeSelectInteraction(this.getMap(), interaction);
+            }
+        }
+
+        const cut = new Cut({
+            type: 'Polygon',
+            map: this.getMap(),
+            source: this.source_
+        });
+
     }
 }
 
