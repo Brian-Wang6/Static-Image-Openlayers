@@ -37,6 +37,11 @@ const imageSource = new Static({
     imageExtent: extent,
 });
 
+DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'GetPolygonsAsync')
+    .then(data => {
+        console.log(data);
+    });
+
 const source = new VectorSource();
 const vector = new VectorLayer({
     source: source,
@@ -245,3 +250,8 @@ document.getElementById('locationBtn').onclick = function () {
 }
 
 //onSelectFeature();
+
+//DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'SavePolygonAsync')
+//    .then(data => {
+//        console.log(data);
+//    });

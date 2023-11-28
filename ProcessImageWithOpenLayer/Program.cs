@@ -1,7 +1,7 @@
 using ProcessImageWithOpenLayer.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-
+using ProcessImageWithOpenLayer.Serivce;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +13,13 @@ builder.Services.AddDevExpressBlazor(options => {
     options.SizeMode = DevExpress.Blazor.SizeMode.Medium;
 });
 builder.Services.AddSingleton<WeatherForecastService>();
+
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddHttpClient<ILocationService, LocationService>(httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.Configuration.GetConnectionString("APIConnection"));
+});
+
 builder.WebHost.UseWebRoot("wwwroot");
 builder.WebHost.UseStaticWebAssets();
 

@@ -30,11 +30,18 @@ export class SelectAndDraw extends Control {
         cut.setAttribute('type', 'button');
         cut.title = 'Cut polygon';
 
+        const save = document.createElement('button');
+        save.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+        save.className = 'select-draw-save';
+        save.setAttribute('type', 'button');
+        save.title = 'Save polygon';
+
         const element = document.createElement('div');
         element.className = 'select-draw ol-unselectable ol-control';
         element.appendChild(select);
         element.appendChild(draw);
         element.appendChild(cut);
+        element.appendChild(save);
 
         super({
             element: element,
@@ -44,6 +51,7 @@ export class SelectAndDraw extends Control {
         select.addEventListener('click', this.handleSelectBtnClick.bind(this), false);
         draw.addEventListener('click', this.handleDrawBtnClick.bind(this), false);
         cut.addEventListener('click', this.handleCutBtnClick.bind(this), false);
+        save.addEventListener('click', this.handleSaveBtnClick.bind(this), false);
 
         this.selectInteraction;
         this.drawInteraction;
@@ -105,6 +113,58 @@ export class SelectAndDraw extends Control {
             source: this.source_
         });
 
+    }
+
+    handleSaveBtnClick() {
+        const data = [];
+        //let polygons = [];
+        //let points = [];
+        //const point = {};
+        //let geom = {};
+        //let polygon = {};
+        const features = this.source_.getFeatures();
+        console.log(features.length);
+        features.forEach((feature) => {
+            var fStyle = feature.getStyle()[0];
+            console.log('style: ', fStyle);
+            var locationId;
+            if (fStyle !== null) {
+                locationId = fStyle.getText() != null ? (fStyle.getText().getText() != null ? fStyle.getText().getText() : 0) : 0;
+                if (locationId === 0) {
+                    alert("One area got no location set");
+                    return;
+                }
+            }
+            else {
+                alert("There's a issue when saving one area.");
+                return;
+            }
+            var polygons = [];
+            const coordinates = feature.getGeometry().getCoordinates();
+            coordinates.forEach((coordinate) => {
+                var points = [];
+                coordinate.forEach((p) => {
+                    
+                    var point = {};
+                    point.X = p[0];
+                    point.Y = p[1];
+                    points.push(point);
+                });
+                //var polygon = {};
+                //polygon.Vertices = points;
+                polygons.push(points);
+            });
+            var geom = {};
+            geom.LocationUID = Number(locationId);
+            geom.Points = polygons;
+            data.push(geom);
+            console.log('data: ', data);
+        });
+        var jsonData = JSON.stringify(data);
+        DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'SavePolygonAsync', jsonData)
+            .then(data => {
+                console.log(data);
+            });
     }
 }
 

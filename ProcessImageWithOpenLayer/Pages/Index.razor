@@ -1,6 +1,12 @@
 ﻿@page "/"
 @inject IJSRuntime JS
 @implements IAsyncDisposable
+@using ProcessImageWithOpenLayer.Data
+@using ProcessImageWithOpenLayer.Serivce
+@using ProcessImageWithOpenLayer.Response
+@using System.Text.Json
+@inject IWebHostEnvironment environment
+@inject ILocationService locationSvc
 
 <link rel="stylesheet" href="./css/openlayer/ol.css" />
 <link rel="stylesheet" href="./css/fontawesome/css/fontawesome.css" />
@@ -28,6 +34,10 @@
     }
 
     .select-draw .select-draw-cut {
+        border-radius: 0 0 0 0;
+    }
+
+    .select-draw .select-draw-save {
         border-radius: 0 0 2px 2px;
     }
 </style>
@@ -71,7 +81,17 @@
     private int blue = 125;
     private int zIndex;
     private string location = string.Empty;
+    private static string root = string.Empty;
+    //private static IEnumerable<Geom> locations;
+    private static ILocationService _locationSvc;
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        root = environment.WebRootPath;
+        _locationSvc = locationSvc;
+        await base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -84,19 +104,57 @@
         }
     }
 
-    //protected async Task AddSelectInteraction()
-    //{
-    //    Console.WriteLine("click select feature button");
-    //    if (module != null)
-    //        await module.InvokeVoidAsync("onSelectFeature");
-    //}
+    [JSInvokable]
+    public static async Task<bool> SavePolygonAsync(string jsonData)
+    {
+        try
+        {
+            IEnumerable<Polygon>? polygons = JsonSerializer.Deserialize<IEnumerable<Polygon>>(jsonData);
+            //locations = polygons != null ? polygons : new List<Geom>();
+            // Post to API
+            if (polygons.Count() > 0)
+            {
+                foreach (var polygon in polygons)
+                {
+                    await _locationSvc.SaveLocation(polygon);
+                }
+            }
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+            //throw;
+        }
 
-    //protected async Task AddDrawInteraction()
-    //{
-    //    Console.WriteLine("click draw feature button");
-    //    if (module != null)
-    //        await module.InvokeVoidAsync("onDrawFeature");
-    //}
+        //IEnumerable<Geom>? polygons = JsonSerializer.Deserialize<IEnumerable<Geom>>(jsonData);
+        ////locations = polygons != null ? polygons : new List<Geom>();
+        //// Post to API
+        //if (polygons.Count() > 0)
+        //{
+        //    foreach (var polygon in polygons)
+        //    {
+        //        await _locationSvc.SaveLocation(polygon);
+        //    }
+        //}                
+
+        //return await Task.FromResult(true);
+    }
+
+    [JSInvokable]
+    public static async Task<PolygonResponse> GetPolygonsAsync()
+    {
+        try
+        {
+            PolygonResponse polygonResponse = await _locationSvc.GetLocationsAsync();
+            return polygonResponse;
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+    }
 
     public async ValueTask DisposeAsync()
     {
