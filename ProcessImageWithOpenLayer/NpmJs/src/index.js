@@ -1,4 +1,5 @@
-﻿import ImageLayer from 'ol/layer/Image.js';
+﻿import GeoJSON from 'ol/format/GeoJSON.js';
+import ImageLayer from 'ol/layer/Image.js';
 import Map from 'ol/Map.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
@@ -16,6 +17,7 @@ import { addSelectInteraction, removeSelectInteraction } from './interactions/Se
 import { default as Keyboard } from './interactions/Keyboard.js';
 import { default as FeatureStyle } from './FeatureStyle.js';
 import { SelectAndDraw } from './controls/SelectAndDraw.js';
+import { default as OLFeature } from './OLGeometry.js';
 
 
 const extent = [0, 0, 2960, 1040];
@@ -37,12 +39,69 @@ const imageSource = new Static({
     imageExtent: extent,
 });
 
+const source = new VectorSource();
+
 DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'GetPolygonsAsync')
     .then(data => {
-        console.log(data);
+        ReadPolygon(data);
     });
 
-const source = new VectorSource();
+const geojsonObject = {
+    'type': 'FeatureCollection',
+    'features': []
+};
+
+function ReadPolygon(data) {
+    var polygons = data.polygons;
+    
+    if (polygons != undefined && polygons != null) {
+        
+        polygons.forEach((polygon) => {
+            console.log('polygon: ', polygon);
+            var rings = polygon.points;
+            var rings_arr = []
+            rings.forEach((ring) => {
+                var ring_arr = [];
+                ring.forEach((point) => {
+                    var arr = [];
+                    arr[0] = point.x;
+                    arr[1] = point.y;
+                    ring_arr.push(arr);
+                });
+                rings_arr.push(ring_arr);
+            });
+            var feature = new OLFeature({
+                type: 'Polygon',
+                coordinates: rings_arr,
+                id: polygon.locationUID,
+                properties: {
+                    'COLOR': [125, 125, 125, 0.5],
+                    'TEXT': polygon.locationUID.toString(),
+                }
+            });
+            geojsonObject.features.push(feature);
+        });
+    }
+    console.log(JSON.stringify(geojsonObject));
+    var features = new GeoJSON().readFeatures(geojsonObject);
+    features.forEach((feature) => {
+        console.log('read feature: ', feature.getProperties());
+        var zindex = feature.get('ZINDEX') || 0;
+        var text = feature.get('TEXT') || '';
+        var color = feature.get('COLOR') || '#eeeeee';
+        var fStyle = new FeatureStyle({
+            zindex: zindex,
+            text: text,
+            color: color
+        });
+        fStyle.setFeatureStyle(feature);
+    })
+    source.addFeatures(features);
+}
+
+console.log('geojson: ', geojsonObject);
+
+console.log('source features: ', source.getFeatures());
 const vector = new VectorLayer({
     source: source,
     //style: {
