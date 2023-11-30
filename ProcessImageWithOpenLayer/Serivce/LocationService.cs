@@ -21,5 +21,10 @@ namespace ProcessImageWithOpenLayer.Serivce
             var response = await _httpClient.GetFromJsonAsync<PolygonResponse>("Location");
             return response ?? new PolygonResponse();
         }
+
+        public async Task DeleteLocation(Polygon polygon)
+        {
+            var responseMsg = await _httpClient.DeleteAsync("Location/" + polygon.LocationUID);
+        }
     }
 }
