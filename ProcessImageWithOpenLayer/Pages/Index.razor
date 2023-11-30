@@ -151,8 +151,30 @@
         }
         catch (Exception)
         {
-            
+
             throw;
+        }
+    }
+
+    [JSInvokable]
+    public static async Task<bool> DeletePolygonAsync(long[] jsonData)
+    {
+        try
+        {
+            //IEnumerable<Polygon>? polygons = JsonSerializer.Deserialize<IEnumerable<Polygon>>(jsonData);
+            
+            // Post to API
+            foreach (var id in jsonData)
+            {
+                await _locationSvc.DeleteLocation(id);
+            }
+            
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+            //throw;
         }
     }
 

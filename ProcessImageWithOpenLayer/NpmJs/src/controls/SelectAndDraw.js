@@ -56,6 +56,7 @@ export class SelectAndDraw extends Control {
         this.selectInteraction;
         this.drawInteraction;
         this.source_ = options.source !== undefined ? options.source : null;
+        this.deleted_ = options.deleted !== undefined ? options.deleted : [];
     }
 
     getSelectInteraction() {
@@ -116,14 +117,25 @@ export class SelectAndDraw extends Control {
     }
 
     handleSaveBtnClick() {
-        const data = [];
-        //let polygons = [];
-        //let points = [];
-        //const point = {};
-        //let geom = {};
-        //let polygon = {};
+                
         const features = this.source_.getFeatures();
         console.log(features.length);
+
+        var jsonData = this.convertFeatureToJson(features);
+        
+        DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'SavePolygonAsync', jsonData)
+            .then(data => {
+                console.log(data);
+            });
+
+        if (this.deleted_ != null && this.deleted_.length > 0) {
+            this.deleteFeatures(this.deleted_);
+        }
+    }
+
+    convertFeatureToJson(features) {
+        const data = [];
+
         features.forEach((feature) => {
             var fStyle = feature.getStyle()[0];
             console.log('style: ', fStyle);
@@ -144,14 +156,13 @@ export class SelectAndDraw extends Control {
             coordinates.forEach((coordinate) => {
                 var points = [];
                 coordinate.forEach((p) => {
-                    
+
                     var point = {};
                     point.X = p[0];
                     point.Y = p[1];
                     points.push(point);
                 });
-                //var polygon = {};
-                //polygon.Vertices = points;
+
                 polygons.push(points);
             });
             var geom = {};
@@ -161,7 +172,14 @@ export class SelectAndDraw extends Control {
             console.log('data: ', data);
         });
         var jsonData = JSON.stringify(data);
-        DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'SavePolygonAsync', jsonData)
+        return jsonData;
+    }
+
+    deleteFeatures(deleted) {
+        console.log('delete feature: ', deleted);
+        deleted = deleted.filter(item => item != undefined);
+
+        DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'DeletePolygonAsync', deleted)
             .then(data => {
                 console.log(data);
             });

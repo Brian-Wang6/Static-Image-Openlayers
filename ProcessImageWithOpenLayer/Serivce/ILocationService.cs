@@ -7,5 +7,6 @@ namespace ProcessImageWithOpenLayer.Serivce
     {
         Task SaveLocation(Polygon polygon);
         Task<PolygonResponse> GetLocationsAsync();
+        Task DeleteLocation(long id);
     }
 }

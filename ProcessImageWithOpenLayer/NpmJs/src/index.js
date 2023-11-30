@@ -41,6 +41,14 @@ const imageSource = new Static({
 
 const source = new VectorSource();
 
+// Remove feature event
+const removedFeatures = []
+source.on('removefeature', function (e) {
+    var removedFeature = e.feature;
+    console.log('removed feature: ', removedFeature);
+    removedFeatures.push(removedFeature.getId());
+});
+
 DotNet.invokeMethodAsync('ProcessImageWithOpenLayer', 'GetPolygonsAsync')
     .then(data => {
         ReadPolygon(data);
@@ -121,7 +129,8 @@ const mousePositionControl = new MousePosition({
 });
 
 const selectAndDraw = new SelectAndDraw({
-    source: source
+    source: source,
+    deleted: removedFeatures
 });
 
 const map = new Map({

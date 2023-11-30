@@ -22,9 +22,9 @@ namespace ProcessImageWithOpenLayer.Serivce
             return response ?? new PolygonResponse();
         }
 
-        public async Task DeleteLocation(Polygon polygon)
+        public async Task DeleteLocation(long id)
         {
-            var responseMsg = await _httpClient.DeleteAsync("Location/" + polygon.LocationUID);
+            var responseMsg = await _httpClient.DeleteAsync("Location/" + id);
         }
     }
 }
