@@ -67,6 +67,18 @@
     <DxFormLayoutItem Caption="">
         <DxButton Text="Set" Id="locationBtn" />
     </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="X:">
+        <DxSpinEdit @bind-Value="coordinateX" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Y:">
+        <DxSpinEdit @bind-Value="coordinateY" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Detected:">
+        <DxTextBox @bind-Text="detectedLoc" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem>
+        <DxButton Text="Get" @onclick="CheckPolygonContainsPoint" />
+    </DxFormLayoutItem>
 </DxFormLayout>
 <div id="map" class="map" tabindex="0"></div>
 <div id="coordinates"></div>
@@ -84,6 +96,9 @@
     private static string root = string.Empty;
     //private static IEnumerable<Geom> locations;
     private static ILocationService _locationSvc;
+    private double coordinateX;
+    private double coordinateY;
+    private string detectedLoc = string.Empty;
 
 
     protected override async Task OnInitializedAsync()
@@ -154,6 +169,19 @@
 
             throw;
         }
+    }
+
+    protected async Task CheckPolygonContainsPoint()
+    {
+        var point = new Point()
+            {
+                X = coordinateX,
+                Y = coordinateY
+            };
+
+        var res = await _locationSvc.CheckPolygonContainsPoint(point);
+        var locationUIDs = string.Join(", ", res.Polygons.Select(x => x.LocationUID).ToArray());
+        detectedLoc = locationUIDs;
     }
 
     [JSInvokable]

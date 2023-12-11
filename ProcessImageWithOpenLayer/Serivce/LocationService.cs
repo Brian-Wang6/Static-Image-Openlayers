@@ -26,5 +26,11 @@ namespace ProcessImageWithOpenLayer.Serivce
         {
             var responseMsg = await _httpClient.DeleteAsync("Location/" + id);
         }
+
+        public async Task<PolygonResponse> CheckPolygonContainsPoint(Point point)
+        {
+            var response = await _httpClient.PostAsJsonAsync("Location/DetectPoint", point);
+            return await response.Content.ReadFromJsonAsync<PolygonResponse>();
+        }
     }
 }
